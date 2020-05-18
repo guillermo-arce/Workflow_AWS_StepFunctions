@@ -1,0 +1,3 @@
+Cuando inicie step function activar otra llamada que checke continuamente si el step function ha terminado -> https://docs.aws.amazon.com/step-functions/latest/apireference/API_DescribeExecution.html
+
+Para acceder al output del step function tengo o que escribir un file en S3 o acceder a una base de datos Dynamo... y posteriormente (cuando step function termine) checkear esa entrada persistente

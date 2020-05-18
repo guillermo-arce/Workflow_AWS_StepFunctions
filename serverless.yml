@@ -1,0 +1,54 @@
+service: step-function
+
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-3
+  profile: default
+
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - "states:ListStateMachines"
+      - "states:StartExecution"
+    Resource: "arn:aws:states:*:*:*"
+
+functions:
+  executeStepFunction:
+    handler: handler.executeStepFunction
+    events:
+      - http:
+          path: run
+          method: get
+  inputValidation:
+    handler: handler.inputValidation
+  getCar:
+    handler: handler.getCar
+  removeCar:
+    handler: handler.removeCar
+  addCar:
+    handler: handler.addCar
+  getCars:
+    handler: handler.getCars
+
+
+//UPDATE!!!!!!! IN  RELATION TO AWS 
+stepFunctions:
+  stateMachines:
+    testingStateMachine:
+      name: TestingStateMachine
+      definition:
+        StartAt: calculateRandomNumber
+        States:
+          calculateRandomNumber:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-calculateRandomNumber
+            Next: moreCalculations
+          moreCalculations:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-moreCalculations
+            End: true

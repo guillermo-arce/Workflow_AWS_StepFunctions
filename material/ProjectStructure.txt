@@ -1,0 +1,3 @@
+It is not exactly as in the photo. We have added another layer (lambda function) that hides the real call of the step function in order to avoid the leak of information.
+	This is done by the creation of a lambda function (known by the client through the API Gateway) which calls the step function. We have added an intermediator 
+	between the API Gateway and the Step Function!
