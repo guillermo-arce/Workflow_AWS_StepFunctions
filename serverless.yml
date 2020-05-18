@@ -36,19 +36,39 @@ functions:
     handler: handler.getCars
 
 
-//UPDATE!!!!!!! IN  RELATION TO AWS 
 stepFunctions:
   stateMachines:
     testingStateMachine:
       name: TestingStateMachine
       definition:
-        StartAt: calculateRandomNumber
+        StartAt: InputValidation
         States:
-          calculateRandomNumber:
+          InputValidation:
             Type: Task
-            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-calculateRandomNumber
-            Next: moreCalculations
-          moreCalculations:
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-inputValidation
+            Next: GetCar
+          GetCar:
             Type: Task
-            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-moreCalculations
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCar
+            Next: ProcessOperation
+          ProcessOperation:
+            Type: Choice
+            Choices : 
+              - Variable: "$.operationType"
+                StringEquals: "ADD"
+                Next: AddCar
+              - Variable: "$.operationType"
+                StringEquals: "REMOVE"
+                Next: RemoveCar
+          AddCar:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-addCar
+            Next: GetAllCars
+          RemoveCar:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-removeCar
+            Next: GetAllCars
+          GetAllCars:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCars
             End: true

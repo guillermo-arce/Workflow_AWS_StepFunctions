@@ -5,12 +5,15 @@ const stepfunctions = new AWS.StepFunctions();
 
 //Lambda Function -> Init Step Function
 module.exports.executeStepFunction = (event, context, callback) => {
+
   console.log('executeStepFunction');
 
-  const number = event.queryStringParameters.number;
-  console.log(number);
+  const operationType = event.queryStringParameters.operationType;
+  const clientName = event.queryStringParameters.clientName;
+  const carModel = event.queryStringParameters.carModel;
+  const carPlate = event.queryStringParameters.carPlate;
 
-  callStepFunction(number).then(result => {
+  callStepFunction(operationType,clientName,carModel,carPlate).then(result => {
     let message = 'Step function is executing';
     if (!result) {
       message = 'Step function is not executing';
@@ -29,18 +32,35 @@ module.exports.executeStepFunction = (event, context, callback) => {
 module.exports.inputValidation = (event, context, callback) => {
   console.log('inputValidation was called');
 
-  let result = event.number;
-  console.log(result);
+  let operationType = event.operationType;
+  let clientName = event.clientName;
+  let carModel = event.carModel;
+  let carPlate = event.carPlate;
 
-  callback(null, { result });
+  //Complete...
+  validOp = inputValidation.validateOperationType(operationType);
+  validClName = inputValidation.validateClientName(clientName);
+  validCMod = inputValidation.validateCarModel(carModel);
+  validCPla = inputValidation.validateCarPlate(carPlate);
+
+
+  callback(null, {operationType,clientName,carModel,carPlate});
 };
 
 //Lambda Function -> Get Car 
 module.exports.getCar = (event, context, callback) => {
   console.log('getCar was called');
-  console.log(event);
+  
+  // let operationType = event.operationType;
+  // let clientName = event.clientName;
+  // let carModel = event.carModel;
+  // let carPlate = event.carPlate;
 
-  callback(null, null);
+  //GET CAR WITH PARAMETERS
+
+  // let car={operationType,clientName,carModel,carPlate}
+
+  callback(null, event);
 };
 
 //Lambda Function -> Process Remove of Car 
@@ -48,7 +68,7 @@ module.exports.removeCar = (event, context, callback) => {
   console.log('removeCar was called');
   console.log(event);
 
-  callback(null, null);
+  callback(null, event);
 };
 
 //Lambda Function -> Process Addition of Car 
@@ -56,7 +76,7 @@ module.exports.addCar = (event, context, callback) => {
   console.log('addCar was called');
   console.log(event);
 
-  callback(null, null);
+  callback(null, event);
 };
 
 
@@ -65,11 +85,11 @@ module.exports.getCars = (event, context, callback) => {
   console.log('getCars was called');
   console.log(event);
 
-  callback(null, null);
+  callback(null, event);
 };
 
 
-function callStepFunction(number) {
+function callStepFunction(clientName,carModel,carPlate) {
   console.log('callStepFunction');
 
   const stateMachineName = 'TestingStateMachine'; // The name of the step function we defined in the serverless.yml
@@ -89,7 +109,7 @@ function callStepFunction(number) {
 
           var params = {
             stateMachineArn: item.stateMachineArn,
-            input: JSON.stringify({ number: number })
+            input: JSON.stringify({ clientName: clientName, carModel: carModel, carPlate: carPlate })
           };
 
           console.log('Start execution');
