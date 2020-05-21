@@ -4,18 +4,43 @@ plugins:
   - serverless-step-functions
   - serverless-pseudo-parameters
 
+custom:
+  settings:
+    PARKING_TABLE_NAME: parkingTable
+
 provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-3
   profile: default
+  environment: ${self:custom.settings}
 
+  #Revisar porque creo que es inutil
   iamRoleStatements:
   - Effect: "Allow"
     Action:
       - "states:ListStateMachines"
       - "states:StartExecution"
-    Resource: "arn:aws:states:*:*:*"
+      - "dynamodb:DeleteItem"
+      - "dynamodb:PutItem"
+      - "dynamodb:GetItem"
+    Resource: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:*"
+
+resources: 
+    Resources:
+      parkingTable: 
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:custom.settings.PARKING_TABLE_NAME}
+          AttributeDefinitions:
+            - AttributeName: carId
+              AttributeType: S
+          KeySchema:
+            - AttributeName: carId
+              KeyType: HASH
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
 
 functions:
   executeStepFunction:
@@ -46,7 +71,17 @@ stepFunctions:
           InputValidation:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-inputValidation
-            Next: GetCar
+            Next: ProcessInput
+          ProcessInput:
+            Type: Choice
+            Choices : 
+              - Variable: "$.operationType"
+                StringEquals: "INVALID"
+                Next: InputError
+            Default: GetCar
+          InputError:
+            Type: Fail
+            Cause: "Wrong Inputs"
           GetCar:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCar

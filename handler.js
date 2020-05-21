@@ -2,6 +2,7 @@
 
 const AWS = require('aws-sdk');
 const stepfunctions = new AWS.StepFunctions();
+const databaseManager = require('./databaseManager');
 
 //Lambda Function -> Init Step Function
 module.exports.executeStepFunction = (event, context, callback) => {
@@ -11,9 +12,9 @@ module.exports.executeStepFunction = (event, context, callback) => {
   const operationType = event.queryStringParameters.operationType;
   const clientName = event.queryStringParameters.clientName;
   const carModel = event.queryStringParameters.carModel;
-  const carPlate = event.queryStringParameters.carPlate;
+  const carId = event.queryStringParameters.carId;
 
-  callStepFunction(operationType,clientName,carModel,carPlate).then(result => {
+  callStepFunction(operationType,clientName,carModel,carId).then(result => {
     let message = 'Step function is executing';
     if (!result) {
       message = 'Step function is not executing';
@@ -32,51 +33,70 @@ module.exports.executeStepFunction = (event, context, callback) => {
 module.exports.inputValidation = (event, context, callback) => {
   console.log('inputValidation was called');
 
-  let operationType = event.operationType;
-  let clientName = event.clientName;
-  let carModel = event.carModel;
-  let carPlate = event.carPlate;
+  var operationType = event.operationType;
+  var clientName = event.clientName;
+  var carModel = event.carModel;
+  var carId = event.carId;
 
-  //Complete...
-  validOp = inputValidation.validateOperationType(operationType);
-  validClName = inputValidation.validateClientName(clientName);
-  validCMod = inputValidation.validateCarModel(carModel);
-  validCPla = inputValidation.validateCarPlate(carPlate);
+  var validOp = false;
+  var validClName = false;
+  var validCMod = false;
+  var validCPla = false;
 
+  if(operationType === "ADD" ||operationType ==="REMOVE")
+    validOp=true;
+  if(/^([\w\s]{3,25})$/.test(clientName))
+    validClName = true;
+  if(/^([\w\s]{3,25})$/.test(carModel))
+    validCMod = true;
+  if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+    validCPla = true;
 
-  callback(null, {operationType,clientName,carModel,carPlate});
+  if(!validOp || !validClName || !validCMod || !validCPla)
+    operationType = "INVALID";
+
+  callback(null, {operationType,clientName,carModel,carId});
 };
 
-//Lambda Function -> Get Car 
+//Lambda Function -> Get Car SEGUIRRRRRRRRRRRRR AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII -> JUSTO DESPUES DE GET CAR, QUE HACEMOS?
 module.exports.getCar = (event, context, callback) => {
   console.log('getCar was called');
-  
-  // let operationType = event.operationType;
-  // let clientName = event.clientName;
-  // let carModel = event.carModel;
-  // let carPlate = event.carPlate;
 
-  //GET CAR WITH PARAMETERS
-
-  // let car={operationType,clientName,carModel,carPlate}
-
-  callback(null, event);
+  databaseManager.getCar(event.carId).then(response=>{
+    console.log(response);
+    if(response==null){
+      event.exists="FALSE";
+      callback(null,event);
+    }
+    else
+      callback(null,event);
+  });
 };
 
 //Lambda Function -> Process Remove of Car 
 module.exports.removeCar = (event, context, callback) => {
   console.log('removeCar was called');
-  console.log(event);
 
-  callback(null, event);
+  databaseManager.removeCar(event.carId).then(response=>{
+    console.log(response);
+    callback(null,"Car was deleted")
+  });
 };
 
 //Lambda Function -> Process Addition of Car 
 module.exports.addCar = (event, context, callback) => {
   console.log('addCar was called');
-  console.log(event);
 
-  callback(null, event);
+  var clientName = event.clientName;
+  var carModel = event.carModel;
+  var carId = event.carId;
+
+  var car = {carId,carModel,clientName};
+
+  databaseManager.addCar(car).then(response=>{
+    console.log(response);
+    callback(null,response)
+  });
 };
 
 
@@ -89,7 +109,7 @@ module.exports.getCars = (event, context, callback) => {
 };
 
 
-function callStepFunction(clientName,carModel,carPlate) {
+function callStepFunction(clientName,carModel,carId) {
   console.log('callStepFunction');
 
   const stateMachineName = 'TestingStateMachine'; // The name of the step function we defined in the serverless.yml
@@ -109,7 +129,7 @@ function callStepFunction(clientName,carModel,carPlate) {
 
           var params = {
             stateMachineArn: item.stateMachineArn,
-            input: JSON.stringify({ clientName: clientName, carModel: carModel, carPlate: carPlate })
+            input: JSON.stringify({ clientName: clientName, carModel: carModel, carId: carId })
           };
 
           console.log('Start execution');
