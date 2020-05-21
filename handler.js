@@ -58,7 +58,7 @@ module.exports.inputValidation = (event, context, callback) => {
   callback(null, {operationType,clientName,carModel,carId});
 };
 
-//Lambda Function -> Get Car SEGUIRRRRRRRRRRRRR AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII -> JUSTO DESPUES DE GET CAR, QUE HACEMOS?
+//Lambda Function -> Get Car
 module.exports.getCar = (event, context, callback) => {
   console.log('getCar was called');
 
@@ -68,8 +68,11 @@ module.exports.getCar = (event, context, callback) => {
       event.exists="FALSE";
       callback(null,event);
     }
-    else
+    else{
+      event.exists="TRUE";
       callback(null,event);
+    }
+      
   });
 };
 
@@ -77,11 +80,14 @@ module.exports.getCar = (event, context, callback) => {
 module.exports.removeCar = (event, context, callback) => {
   console.log('removeCar was called');
 
-  databaseManager.removeCar(event.carId).then(response=>{
-    console.log(response);
-    callback(null,"Car was deleted")
-  });
-};
+  if(event.exists==="TRUE"){
+    databaseManager.removeCar(event.carId).then(response=>{
+      console.log(response);
+      callback(null,response)
+    });
+    callback(null,event);
+  }
+}
 
 //Lambda Function -> Process Addition of Car 
 module.exports.addCar = (event, context, callback) => {
@@ -92,11 +98,12 @@ module.exports.addCar = (event, context, callback) => {
   var carId = event.carId;
 
   var car = {carId,carModel,clientName};
-
-  databaseManager.addCar(car).then(response=>{
-    console.log(response);
-    callback(null,response)
-  });
+  if(event.exists==="FALSE"){
+    databaseManager.addCar(car).then(response=>{
+      console.log(response);
+      callback(null,response)
+    });
+  }
 };
 
 
@@ -105,7 +112,10 @@ module.exports.getCars = (event, context, callback) => {
   console.log('getCars was called');
   console.log(event);
 
-  callback(null, event);
+  databaseManager.getCars().then(response=>{
+    console.log(response);
+    callback(null,response)
+  });
 };
 
 

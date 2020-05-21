@@ -40,3 +40,20 @@ module.exports.removeCar = carId => {
     return dynamodb.delete(params).promise();
 }
 
+
+module.exports.getCars = async () => {
+  const params = {
+    TableName: TABLE_NAME
+  };
+
+  let scanResults = [];
+  let items;
+  do{
+    items =  await dynamodb.scan(params).promise();
+    items.Items.forEach((item) => scanResults.push(item));
+    params.ExclusiveStartKey  = items.LastEvaluatedKey;
+  }while(typeof items.LastEvaluatedKey != "undefined");
+
+  return scanResults;
+}
+

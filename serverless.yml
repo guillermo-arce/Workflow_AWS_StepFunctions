@@ -85,7 +85,23 @@ stepFunctions:
           GetCar:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCar
-            Next: ProcessOperation
+            Next: CheckOperation
+          CheckOperation:
+            Type: Choice
+            Choices: 
+            And:
+              - Variable: "$.operationType"
+                StringEquals: "ADD"
+              - Variable: "$.exists"
+                StringEquals: "TRUE"
+              Next: EndProcess
+            And:
+              - Variable: "$.operationType"
+                StringEquals: "REMOVE"
+              - Variable: "$.exists"
+                StringEquals: "FALSE"
+              Next: EndProcess
+            Default: ProcessOperation
           ProcessOperation:
             Type: Choice
             Choices : 
@@ -106,4 +122,7 @@ stepFunctions:
           GetAllCars:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCars
+            Next: EndProcess
+          EndProcess:
+            Type: Pass
             End: true
