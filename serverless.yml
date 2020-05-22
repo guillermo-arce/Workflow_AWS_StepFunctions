@@ -88,19 +88,19 @@ stepFunctions:
             Next: CheckOperation
           CheckOperation:
             Type: Choice
-            Choices: 
-            And:
-              - Variable: "$.operationType"
-                StringEquals: "ADD"
-              - Variable: "$.exists"
-                StringEquals: "TRUE"
-              Next: EndProcess
-            And:
-              - Variable: "$.operationType"
-                StringEquals: "REMOVE"
-              - Variable: "$.exists"
-                StringEquals: "FALSE"
-              Next: EndProcess
+            Choices:
+              - And:
+                  - Variable: $.operationType
+                    StringEquals: ADD
+                  - Variable: $.exists
+                    StringEquals: 'TRUE'
+                Next: EndProcess
+              - And:
+                  - Variable: $.operationType
+                    StringEquals: REMOVE
+                  - Variable: $.exists
+                    StringEquals: 'FALSE'
+                Next: EndProcess
             Default: ProcessOperation
           ProcessOperation:
             Type: Choice

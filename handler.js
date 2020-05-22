@@ -45,12 +45,21 @@ module.exports.inputValidation = (event, context, callback) => {
 
   if(operationType === "ADD" ||operationType ==="REMOVE")
     validOp=true;
-  if(/^([\w\s]{3,25})$/.test(clientName))
-    validClName = true;
-  if(/^([\w\s]{3,25})$/.test(carModel))
+  if(operationType==="ADD"){
+    if(/^([\w\s]{3,25})$/.test(clientName))
+      validClName = true;
+    if(/^([\w\s]{3,25})$/.test(carModel))
+      validCMod = true;
+    if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+      validCPla = true;
+  }
+  if(operationType === "REMOVE"){
+    if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+      validCPla = true;
     validCMod = true;
-  if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
-    validCPla = true;
+    validClName = true;
+  }
+
 
   if(!validOp || !validClName || !validCMod || !validCPla)
     operationType = "INVALID";
@@ -119,7 +128,7 @@ module.exports.getCars = (event, context, callback) => {
 };
 
 
-function callStepFunction(clientName,carModel,carId) {
+function callStepFunction(operationType,clientName,carModel,carId) {
   console.log('callStepFunction');
 
   const stateMachineName = 'TestingStateMachine'; // The name of the step function we defined in the serverless.yml
@@ -139,11 +148,11 @@ function callStepFunction(clientName,carModel,carId) {
 
           var params = {
             stateMachineArn: item.stateMachineArn,
-            input: JSON.stringify({ clientName: clientName, carModel: carModel, carId: carId })
+            input: JSON.stringify({ operationType: operationType,clientName: clientName, carModel: carModel, carId: carId })
           };
 
           console.log('Start execution');
-          return stepfunctions.startExecution(params).promise().then(() => {
+          return stepfunctions.startExecution(params).promise().then((result) => {
             return true;
           });
         }
