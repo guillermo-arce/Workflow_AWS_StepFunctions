@@ -14,7 +14,7 @@ module.exports.executeStepFunction = (event, context, callback) => {
 
 
   callStepFunction(operationType,clientName,carModel,carId).then(result => {
-    let message = 'Step function is executing -> ' + event.operationType;
+    let message = 'Step function is executing';
     if (!result) {
       message = 'Step function is not executing';
     }
@@ -123,8 +123,6 @@ module.exports.addCar = (event, context, callback) => {
 
 function callStepFunction(operationType, clientName, carModel, carId) {
   console.log('callStepFunction');
-
-  console.log(event)
 
   const stateMachineName = 'TestingStateMachine'; // The name of the step function we defined in the serverless.yml
   console.log('Fetching the list of available workflows');

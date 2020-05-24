@@ -49,7 +49,6 @@ functions:
       - http:
           path: run
           method: get
-          cors: true
   inputValidation:
     handler: handler.inputValidation
   getCar:
