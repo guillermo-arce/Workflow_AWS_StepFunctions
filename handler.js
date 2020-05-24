@@ -7,21 +7,27 @@ const databaseManager = require('./databaseManager');
 //Lambda Function -> Init Step Function
 module.exports.executeStepFunction = (event, context, callback) => {
 
-  console.log('executeStepFunction');
+  var operationType = event.queryStringParameters.operationType;
+  var clientName = event.queryStringParameters.clientName;
+  var carModel = event.queryStringParameters.carModel;
+  var carId = event.queryStringParameters.carId;
 
-  const operationType = event.queryStringParameters.operationType;
-  const clientName = event.queryStringParameters.clientName;
-  const carModel = event.queryStringParameters.carModel;
-  const carId = event.queryStringParameters.carId;
 
   callStepFunction(operationType,clientName,carModel,carId).then(result => {
-    let message = 'Step function is executing';
+    let message = 'Step function is executing -> ' + event.operationType;
     if (!result) {
       message = 'Step function is not executing';
     }
 
     const response = {
       statusCode: 200,
+      headers: {
+
+        'Access-Control-Allow-Origin': '*',
+  
+        'Access-Control-Allow-Credentials': true,
+  
+      },
       body: JSON.stringify({ message })
     };
 
@@ -43,45 +49,45 @@ module.exports.inputValidation = (event, context, callback) => {
   var validCMod = false;
   var validCPla = false;
 
-  if(operationType === "ADD" ||operationType ==="REMOVE")
-    validOp=true;
-  if(operationType==="ADD"){
-    if(/^([\w\s]{3,25})$/.test(clientName))
+  if (operationType === "ADD" || operationType === "REMOVE")
+    validOp = true;
+  if (operationType === "ADD") {
+    if (/^([\w\s]{3,40})$/.test(clientName))
       validClName = true;
-    if(/^([\w\s]{3,25})$/.test(carModel))
+    if (/^([\w\s]{3,40})$/.test(carModel))
       validCMod = true;
-    if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+    if (/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
       validCPla = true;
   }
-  if(operationType === "REMOVE"){
-    if(/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+  if (operationType === "REMOVE") {
+    if (/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
       validCPla = true;
     validCMod = true;
     validClName = true;
   }
 
 
-  if(!validOp || !validClName || !validCMod || !validCPla)
+  if (!validOp || !validClName || !validCMod || !validCPla)
     operationType = "INVALID";
 
-  callback(null, {operationType,clientName,carModel,carId});
+  callback(null, { operationType, clientName, carModel, carId });
 };
 
 //Lambda Function -> Get Car
 module.exports.getCar = (event, context, callback) => {
   console.log('getCar was called');
 
-  databaseManager.getCar(event.carId).then(response=>{
+  databaseManager.getCar(event.carId).then(response => {
     console.log(response);
-    if(response==null){
-      event.exists="FALSE";
-      callback(null,event);
+    if (response == null) {
+      event.exists = "FALSE";
+      callback(null, event);
     }
-    else{
-      event.exists="TRUE";
-      callback(null,event);
+    else {
+      event.exists = "TRUE";
+      callback(null, event);
     }
-      
+
   });
 };
 
@@ -89,12 +95,12 @@ module.exports.getCar = (event, context, callback) => {
 module.exports.removeCar = (event, context, callback) => {
   console.log('removeCar was called');
 
-  if(event.exists==="TRUE"){
-    databaseManager.removeCar(event.carId).then(response=>{
+  if (event.exists === "TRUE") {
+    databaseManager.removeCar(event.carId).then(response => {
       console.log(response);
-      callback(null,response)
+      callback(null, response)
     });
-    callback(null,event);
+    callback(null, event);
   }
 }
 
@@ -106,30 +112,19 @@ module.exports.addCar = (event, context, callback) => {
   var carModel = event.carModel;
   var carId = event.carId;
 
-  var car = {carId,carModel,clientName};
-  if(event.exists==="FALSE"){
-    databaseManager.addCar(car).then(response=>{
+  var car = { carId, carModel, clientName };
+  if (event.exists === "FALSE") {
+    databaseManager.addCar(car).then(response => {
       console.log(response);
-      callback(null,response)
+      callback(null, response)
     });
   }
 };
 
-
-//Lambda Function -> Get All Cars 
-module.exports.getCars = (event, context, callback) => {
-  console.log('getCars was called');
-  console.log(event);
-
-  databaseManager.getCars().then(response=>{
-    console.log(response);
-    callback(null,response)
-  });
-};
-
-
-function callStepFunction(operationType,clientName,carModel,carId) {
+function callStepFunction(operationType, clientName, carModel, carId) {
   console.log('callStepFunction');
+
+  console.log(event)
 
   const stateMachineName = 'TestingStateMachine'; // The name of the step function we defined in the serverless.yml
   console.log('Fetching the list of available workflows');
@@ -148,11 +143,11 @@ function callStepFunction(operationType,clientName,carModel,carId) {
 
           var params = {
             stateMachineArn: item.stateMachineArn,
-            input: JSON.stringify({ operationType: operationType,clientName: clientName, carModel: carModel, carId: carId })
+            input: JSON.stringify({ operationType:operationType,clientName: clientName, carModel: carModel, carId: carId })
           };
 
           console.log('Start execution');
-          return stepfunctions.startExecution(params).promise().then((result) => {
+          return stepfunctions.startExecution(params).promise().then(() => {
             return true;
           });
         }
@@ -161,4 +156,4 @@ function callStepFunction(operationType,clientName,carModel,carId) {
     .catch(error => {
       return false;
     });
-}
+};

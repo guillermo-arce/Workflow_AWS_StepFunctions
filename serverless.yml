@@ -49,6 +49,7 @@ functions:
       - http:
           path: run
           method: get
+          cors: true
   inputValidation:
     handler: handler.inputValidation
   getCar:
@@ -114,14 +115,10 @@ stepFunctions:
           AddCar:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-addCar
-            Next: GetAllCars
+            Next: EndProcess
           RemoveCar:
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-removeCar
-            Next: GetAllCars
-          GetAllCars:
-            Type: Task
-            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getCars
             Next: EndProcess
           EndProcess:
             Type: Pass

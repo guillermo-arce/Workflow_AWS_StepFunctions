@@ -143,7 +143,7 @@ iframe {
 
 .container-contact2 {
   width: 100%;  
-  min-height: 40vh;
+  min-height: 100vh;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;
@@ -151,8 +151,8 @@ iframe {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  /*align-items: center;*/
-  padding: 10px;
+  align-items: center;
+  padding: 15px;
 
 }
 
@@ -161,7 +161,7 @@ iframe {
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
-  padding: 10px 55px 20px 55px;
+  padding: 72px 55px 90px 55px;
 }
 
 
@@ -170,7 +170,6 @@ iframe {
 
 .contact2-form {
   width: 100%;
-  
 }
 
 .contact2-form-title {
@@ -179,8 +178,8 @@ iframe {
   font-size: 39px;
   color: #333333;
   line-height: 1.2;
-  text-align: center;
-  padding-bottom: 50px;
+  text-align: center;2
+  padding-bottom: 90px;
 }
 
 
@@ -193,7 +192,6 @@ iframe {
   position: relative;
   border-bottom: 2px solid #adadad;
   margin-bottom: 37px;
-  
 }
 
 .input2 {
@@ -230,11 +228,11 @@ iframe {
   -moz-transition: all 0.4s;
   transition: all 0.4s;
 
-  background: rgba(43, 64, 255, 0.8);
-  background: -webkit-linear-gradient(45deg, #2B547E, #2B547E);
-  background: -o-linear-gradient(45deg, #2B547E, #2B547E);
-  background: -moz-linear-gradient(45deg, #2B547E, #2B547E);
-  background: linear-gradient(45deg, #2B547E, #2B547E);
+  background: rgba(219,21,99,1);
+  background: -webkit-linear-gradient(45deg, #d5007d, #e53935);
+  background: -o-linear-gradient(45deg, #d5007d, #e53935);
+  background: -moz-linear-gradient(45deg, #d5007d, #e53935);
+  background: linear-gradient(45deg, #d5007d, #e53935);
 }
 
 .focus-input2::after {
@@ -321,11 +319,11 @@ textarea.input2 + .focus-input2::after {
   z-index: -1;
   width: 300%;
   height: 100%;
-  background: rgba(43, 64, 255, 0.8);
-  background: -webkit-linear-gradient(-135deg, #2B547E, #2B547E, #2B547E, #2B547E);
-  background: -o-linear-gradient(-135deg, #2B547E, #2B547E, #2B547E, #2B547E);
-  background: -moz-linear-gradient(-135deg, #2B547E, #2B547E, #2B547E, #2B547E);
-  background: linear-gradient(-135deg, #2B547E, #2B547E, #2B547E, #2B547E);
+  background: rgba(219,21,99,1);
+  background: -webkit-linear-gradient(-135deg, #d5007d, #e53935, #d5007d, #e53935);
+  background: -o-linear-gradient(-135deg, #d5007d, #e53935, #d5007d, #e53935);
+  background: -moz-linear-gradient(-135deg, #d5007d, #e53935, #d5007d, #e53935);
+  background: linear-gradient(-135deg, #d5007d, #e53935, #d5007d, #e53935);
   top: 0;
   left: -100%;
 
@@ -366,7 +364,7 @@ textarea.input2 + .focus-input2::after {
 
 @media (max-width: 576px) {
   .wrap-contact2 {
-    padding: 72px 15px 30px 15px;
+    padding: 72px 15px 90px 15px;
   }
 }
 
@@ -377,7 +375,6 @@ textarea.input2 + .focus-input2::after {
 
 .validate-input {
   position: relative;
-  
 }
 
 .alert-validate::before {

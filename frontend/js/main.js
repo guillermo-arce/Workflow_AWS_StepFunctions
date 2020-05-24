@@ -1,18 +1,27 @@
 $( document ).ready(function() {
 
-
-    /*==================================================================
-    [ Focus Contact2 ]*/
-    $('.input2').each(function(){
-        $(this).on('blur', function(){
-            if($(this).val().trim() != "") {
-                $(this).addClass('has-val');
-            }
-            else {
-                $(this).removeClass('has-val');
-            }
-        })    
-    })
+    // lock scroll position, but retain settings for later
+    var scrollPosition = [
+        self.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft,
+        self.pageYOffset || document.documentElement.scrollTop  || document.body.scrollTop
+    ];
+    var html = jQuery('html'); // it would make more sense to apply this to body, but IE7 won't have that
+    html.data('scroll-position', scrollPosition);
+    html.data('previous-overflow', html.css('overflow'));
+    html.css('overflow', 'hidden');
+    window.scrollTo(scrollPosition[0], scrollPosition[1]);
+        /*==================================================================
+        [ Focus Contact2 ]*/
+        $('.input2').each(function(){
+            $(this).on('blur', function(){
+                if($(this).val().trim() != "") {
+                    $(this).addClass('has-val');
+                }
+                else {
+                    $(this).removeClass('has-val');
+                }
+            })    
+        })
             
 
     $("#btn-register").click(function(){
@@ -21,27 +30,43 @@ $( document ).ready(function() {
         var carId = $("#input-carPlate").val().trim();
         var operationType = "ADD";
 
-        if(clientName.length>0 && clientName.length<26 
-            && carModel.length>0 && carModel.length<26
+        if(clientName.length>0 && clientName.length<41
+            && carModel.length>0 && carModel.length<41
                 && carId.length==7){
                     debugger;
-                    $.ajax({
-                        url: "https://3s2o8s03v2.execute-api.eu-west-3.amazonaws.com/dev/run",
-                        type: "GET",
-                        data: { 
-                          clientName: clientName, 
-                          carModel: carModel, 
-                          carId: carId,
-                          operationType: operationType
-                        }
-                        // success: function(response) {
-                        //     alert(response);
-                        // },
-                        // error: function(xhr) {
-                        //     alert("ERROR"+xhr);
-                        // }
+                    var url = new URL('https://3s2o8s03v2.execute-api.eu-west-3.amazonaws.com/dev/run');
+                    var params = {operationType:operationType, carModel:carModel, carId:carId, clientName:clientName};
+                    url.search = new URLSearchParams(params).toString();
+
+                    fetch(url).then(function(response) {
+                        return response.json();
+                      })
+                      .then(function(myJson) {
+                        console.log(myJson);
                       });
+
+                    
+
+                    // $.ajax({
+                    //     url: "https://3s2o8s03v2.execute-api.eu-west-3.amazonaws.com/dev/run",
+                    //     type: "GET",
+                    //     data: { 
+                    //       clientName: clientName, 
+                    //       carModel: carModel, 
+                    //       carId: carId,
+                    //       operationType: operationType
+                    //     },
+                    //     success: function (result){
+                    //         alert(result);
+                    //     },
+                    //     error: function (error){
+                    //         alert(error);
+                    //     }
+                    //   });
                 }
+        else{
+            alert("Revise parameters");
+        }
 
     });
 
@@ -57,13 +82,13 @@ $( document ).ready(function() {
                 data: { 
                     carId: carId,
                     operationType: operationType
+                },
+                success: function (result){
+                    alert(result);
+                },
+                error: function (error){
+                    alert(error);
                 }
-                // success: function(response) {
-                //     alert(response);
-                // },
-                // error: function(xhr) {
-                //     alert("ERROR"+xhr);
-                // }
                 });
                 }
 
