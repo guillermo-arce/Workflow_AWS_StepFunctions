@@ -56,11 +56,11 @@ module.exports.inputValidation = (event, context, callback) => {
       validClName = true;
     if (/^([\w\s]{3,40})$/.test(carModel))
       validCMod = true;
-    if (/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+    if (/[a-zA-Z]{2}[0-9]{3}[a-zA-Z]{2}$/.test(carId))
       validCPla = true;
   }
   if (operationType === "REMOVE") {
-    if (/[a-z]{2}[0-9]{3}[a-z]{2}$/.test(carId))
+    if (/[a-zA-Z]{2}[0-9]{3}[a-zA-Z]{2}$/.test(carId))
       validCPla = true;
     validCMod = true;
     validClName = true;
@@ -111,7 +111,7 @@ module.exports.addCar = (event, context, callback) => {
   var clientName = event.clientName;
   var carModel = event.carModel;
   var carId = event.carId;
-
+  
   var car = { carId, carModel, clientName };
   if (event.exists === "FALSE") {
     databaseManager.addCar(car).then(response => {
